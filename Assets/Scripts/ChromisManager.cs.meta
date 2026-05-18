@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 0b0fbf47ee1264f50a362c0176def759
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - chromisPrefab: {fileID: 4571986049320599648, guid: 663d6cb25f412462e8108c1bfb7f4f73, type: 3}
+  - groundPlane: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
