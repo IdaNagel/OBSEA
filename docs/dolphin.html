@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>OBSEA Underwater Simulator</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #fdfaf1; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            color: #1a4a73;
+        }
+
+        header { text-align: center; padding: 20px; width: 100%; }
+        header h1 { font-size: 70px; margin: 0; color: #1a4a73; font-weight: bold; }
+        header p { font-weight: bold; margin: 0; text-transform: uppercase; font-size: 14px; }
+
+        .main-layout { 
+            display: flex; 
+            width: 95vw; 
+            max-width: 1400px; 
+            gap: 15px; 
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .sidebar { 
+            background-color: #7ba8cc; 
+            border-radius: 15px; 
+            padding: 20px; 
+            color: white; 
+            width: 250px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h3 { border-bottom: 2px solid white; padding-bottom: 5px; margin-top: 0; font-size: 18px; }
+
+        #unity-container { 
+            flex-grow: 1; 
+            background: #231F20; 
+            border: 10px solid #6b46c1; 
+            border-radius: 5px;
+            aspect-ratio: 16/9;
+        }
+
+        canvas { width: 100%; height: 100%; display: block; }
+
+        .control-group { margin-bottom: 20px; }
+        
+        button { 
+            width: 100%; padding: 10px; margin: 5px 0; 
+            border-radius: 20px; border: none; cursor: pointer; 
+            font-weight: bold; color: #1a4a73; background: white;
+        }
+        button:hover { background: #e0e0e0; }
+
+        .info-box { 
+            background: white; color: #7ba8cc; padding: 15px; 
+            border-radius: 10px; min-height: 200px; font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <p>YOUR OWN UNDERWATER WORLD - STRAIGHT FROM VILANOVA</p>
+        <h1>OBSEA</h1>
+    </header>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="control-group">
+                <h3>ENVIRONMENT</h3>
+                <button onclick="sendToUnity('ChangeScene', 'Plain')">Plain ocean</button>
+                <button onclick="sendToUnity('ChangeScene', 'AR')">Biotop</button>
+                <button onclick="sendToUnity('ChangeScene', 'Stage1')">Dead dolphin</button>
+            </div>
+
+            <div class="control-group">
+                <h3>DOLPHIN STAGES</h3>
+                <button onclick="sendToUnity('ChangeScene', 'Stage1')">Stage 1</button>
+                <button onclick="sendToUnity('ChangeScene', 'Stage2')">Stage 2</button>
+                <button onclick="sendToUnity('ChangeScene', 'Stage3')">Stage 3</button>
+                <button onclick="sendToUnity('ChangeScene', 'Stage4')">Stage 4</button>
+            </div>
+        </div>
+
+        <div id="unity-container">
+            <canvas id="unity-canvas" tabindex="-1"></canvas>
+        </div>
+
+        <div class="sidebar">
+            <h3>INFORMATION</h3>
+            <div class="info-box" id="infoText">
+                Select an environment to start. 
+                <br><br>
+                Use the date and time pickers to change the ecological conditions and lighting.
+            </div>
+        </div>
+    </div>
+
+    <script src="Build/docs.loader.js"></script>
+    
+    <script>
+        var unityInstance = null;
+
+        createUnityInstance(document.querySelector("#unity-canvas"), {
+            dataUrl: "Build/docs.data",
+            frameworkUrl: "Build/docs.framework.js",
+            codeUrl: "Build/docs.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "Obsea Simulator",
+            productVersion: "0.1.0",
+        }).then((instance) => {
+            unityInstance = instance;
+            console.log("Unity loaded successfully.");
+
+            // Sjekker om nettadressen ber om en spesifikk start-scene
+            const urlParams = new URLSearchParams(window.location.search);
+            const startScene = urlParams.get('scene');
+            
+            if (startScene) {
+                setTimeout(() => {
+                    sendToUnity('ChangeScene', startScene);
+                }, 1000);
+            }
+
+        }).catch((err) => {
+            console.error("Unity failed to load:", err);
+        });
+
+        function sendToUnity(methodName, value) {
+            if (unityInstance) {
+                unityInstance.SendMessage('Web_Manager', methodName, value);
+            }
+        }
+    </script>
+</body>
+</html>

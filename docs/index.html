@@ -83,13 +83,12 @@
     </header>
 
     <div class="main-layout">
-        <!-- Venstre Sidebar: Kontroller -->
         <div class="sidebar">
             <div class="control-group">
                 <h3>ENVIRONMENT</h3>
                 <button onclick="sendToUnity('ChangeScene', 'Plain')">Plain ocean</button>
                 <button onclick="sendToUnity('ChangeScene', 'AR')">Biotop</button>
-                <button onclick="sendToUnity('ChangeScene', 'Dolphin')">Dead dolphin</button>
+                <button onclick="goToDolphinPage()">Dead dolphin</button>
             </div>
 
             <div class="control-group">
@@ -102,12 +101,10 @@
             </div>
         </div>
 
-        <!-- Senter: Unity WebGL -->
         <div id="unity-container">
             <canvas id="unity-canvas" tabindex="-1"></canvas>
         </div>
 
-        <!-- Høyre Sidebar: Info -->
         <div class="sidebar">
             <h3>INFORMATION</h3>
             <div class="info-box" id="infoText">
@@ -118,7 +115,6 @@
         </div>
     </div>
 
-    <!-- Unity Loader - Sjekk at navnet stemmer med mappen din! -->
     <script src="Build/docs.loader.js"></script>
     
     <script>
@@ -141,9 +137,13 @@
 
         function sendToUnity(methodName, value) {
             if (unityInstance) {
-                // Sender melding til objektet "Manager" i Unity
                 unityInstance.SendMessage('Web_Manager', methodName, value);
             }
+        }
+
+        function goToDolphinPage() {
+            // Reposisjonert hit ned i scriptet, og sender brukeren direkte til Stage 1
+            window.location.href = "dolphin.html?scene=Stage1";
         }
 
         function syncDateTime() {
