@@ -1,162 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en-us">
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>OBSEA Underwater Simulator</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background-color: #fdfaf1; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            color: #1a4a73;
-        }
-
-        header { text-align: center; padding: 20px; width: 100%; }
-        header h1 { font-size: 70px; margin: 0; color: #1a4a73; font-weight: bold; }
-        header p { font-weight: bold; margin: 0; text-transform: uppercase; font-size: 14px; }
-
-        .main-layout { 
-            display: flex; 
-            width: 95vw; 
-            max-width: 1400px; 
-            gap: 15px; 
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        .sidebar { 
-            background-color: #7ba8cc; 
-            border-radius: 15px; 
-            padding: 20px; 
-            color: white; 
-            width: 250px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .sidebar h3 { border-bottom: 2px solid white; padding-bottom: 5px; margin-top: 0; font-size: 18px; }
-
-        #unity-container { 
-            flex-grow: 1; 
-            background: #231F20; 
-            border: 10px solid #6b46c1; 
-            border-radius: 5px;
-            aspect-ratio: 16/9;
-        }
-
-        canvas { width: 100%; height: 100%; display: block; }
-
-        .control-group { margin-bottom: 20px; }
-        
-        button { 
-            width: 100%; padding: 10px; margin: 5px 0; 
-            border-radius: 20px; border: none; cursor: pointer; 
-            font-weight: bold; color: #1a4a73; background: white;
-        }
-        button:hover { background: #e0e0e0; }
-
-        .btn-update {
-            background-color: #6b46c1 !important;
-            color: white !important;
-            margin-top: 15px !important;
-        }
-
-        input { 
-            width: 90%; padding: 8px; border-radius: 5px; 
-            border: none; margin-top: 5px; font-family: inherit; 
-        }
-
-        .info-box { 
-            background: white; color: #7ba8cc; padding: 15px; 
-            border-radius: 10px; min-height: 200px; font-size: 14px;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <p>YOUR OWN UNDERWATER WORLD - STRAIGHT FROM VILANOVA</p>
-        <h1>OBSEA</h1>
-    </header>
-
-    <div class="main-layout">
-        <!-- Venstre Sidebar: Kontroller -->
-        <div class="sidebar">
-            <div class="control-group">
-                <h3>ENVIRONMENT</h3>
-                <button onclick="sendToUnity('ChangeScene', 'Plain')">Plain ocean</button>
-                <button onclick="sendToUnity('ChangeScene', 'AR')">Biotop</button>
-                <button onclick="sendToUnity('ChangeScene', 'Dolphin')">Dead dolphin</button>
-            </div>
-
-            <div class="control-group">
-                <h3>DATE & TIME</h3>
-                <input type="date" id="dateInput">
-                <input type="time" id="timeInput">
-                <button class="btn-update" onclick="syncDateTime()">
-                    UPDATE SIMULATION
-                </button>
-            </div>
+    <title>Unity Web Player | OBSEA</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
         </div>
-
-        <!-- Senter: Unity WebGL -->
-        <div id="unity-container">
-            <canvas id="unity-canvas" tabindex="-1"></canvas>
-        </div>
-
-        <!-- Høyre Sidebar: Info -->
-        <div class="sidebar">
-            <h3>INFORMATION</h3>
-            <div class="info-box" id="infoText">
-                Select an environment to start. 
-                <br><br>
-                Use the date and time pickers to change the ecological conditions and lighting.
-            </div>
-        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-logo-title-footer"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">OBSEA</div>
+      </div>
     </div>
-
-    <!-- Unity Loader - Sjekk at navnet stemmer med mappen din! -->
-    <script src="Build/Web.loader.js"></script>
-    
     <script>
-        var unityInstance = null;
+      var canvas = document.querySelector("#unity-canvas");
 
-        createUnityInstance(document.querySelector("#unity-canvas"), {
-            dataUrl: "Build/Web.data",
-            frameworkUrl: "Build/Web.framework.js",
-            codeUrl: "Build/Web.wasm",
-            streamingAssetsUrl: "StreamingAssets",
-            companyName: "DefaultCompany",
-            productName: "Obsea Simulator",
-            productVersion: "0.1.0",
-        }).then((instance) => {
-            unityInstance = instance;
-            console.log("Unity loaded successfully.");
-        }).catch((err) => {
-            console.error("Unity failed to load:", err);
-        });
-
-        function sendToUnity(methodName, value) {
-            if (unityInstance) {
-                // Sender melding til objektet "Manager" i Unity
-                unityInstance.SendMessage('Web_Manager', methodName, value);
-            }
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
         }
-
-        function syncDateTime() {
-            const date = document.getElementById('dateInput').value;
-            const time = document.getElementById('timeInput').value;
-            
-            if(date && time) {
-                console.log("Manual Sync: " + date + " " + time);
-                sendToUnity('UpdateSimulationTime', date + " " + time);
-            } else {
-                alert("Please select both a date and a time before updating!");
-            }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
         }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/docs.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/docs.data",
+        frameworkUrl: buildUrl + "/docs.framework.js",
+        codeUrl: buildUrl + "/docs.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "OBSEA",
+        productVersion: "0.1.0",
+        showBanner: unityShowBanner,
+        // errorHandler: function(err, url, line) {
+        //    alert("error " + err + " occurred at line " + line);
+        //    // Return 'true' if you handled this error and don't want Unity
+        //    // to process it further, 'false' otherwise.
+        //    return true;
+        // },
+      };
+
+      // By default, Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
+
+      // If you would like all file writes inside Unity Application.persistentDataPath
+      // directory to automatically persist so that the contents are remembered when
+      // the user revisits the site the next time, uncomment the following line:
+      // config.autoSyncPersistentDataPath = true;
+      // This autosyncing is currently not the default behavior to avoid regressing
+      // existing user projects that might rely on the earlier manual
+      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
+      // expected to change.
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
+
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
+
+
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+        canvas.style.width = "960px";
+        canvas.style.height = "600px";
+      }
+
+      document.querySelector("#unity-loading-bar").style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+              }).then((unityInstance) => {
+                document.querySelector("#unity-loading-bar").style.display = "none";
+                document.querySelector("#unity-fullscreen-button").onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
+
+              }).catch((message) => {
+                alert(message);
+              });
+            };
+
+      document.body.appendChild(script);
+
     </script>
-</body>
+  </body>
 </html>
