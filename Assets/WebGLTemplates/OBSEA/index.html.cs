@@ -119,15 +119,15 @@
     </div>
 
     <!-- Unity Loader - Sjekk at navnet stemmer med mappen din! -->
-    <script src="Build/Web.loader.js"></script>
+    <script src="Build/docs.loader.js"></script>
     
     <script>
         var unityInstance = null;
 
         createUnityInstance(document.querySelector("#unity-canvas"), {
-            dataUrl: "Build/Web.data",
-            frameworkUrl: "Build/Web.framework.js",
-            codeUrl: "Build/Web.wasm",
+            dataUrl: "Build/docs.data",
+            frameworkUrl: "Build/docs.framework.js",
+            codeUrl: "Build/docs.wasm",
             streamingAssetsUrl: "StreamingAssets",
             companyName: "DefaultCompany",
             productName: "Obsea Simulator",
