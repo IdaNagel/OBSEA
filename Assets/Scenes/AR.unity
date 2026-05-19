@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b21055eacc291471ebd29e07cd51f881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraOrbit
-  target: {fileID: 0}
+  target: {fileID: 4396985771439071481}
   rotationSpeed: 5
   distance: 60
   height: 1
@@ -967,6 +967,78 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1873886228074564726, guid: 52a21443deecf4278a36ee445552e91b, type: 3}
+--- !u!4 &4396985771439071481 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4994171594676826114, guid: 83ccf2a752d8c468a87856a19eeab0ff, type: 3}
+  m_PrefabInstance: {fileID: 4191164366519146856}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5666585534124527726
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2501340307426677126, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2501340307426677126, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_Intensity
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4412352849978882027, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_Name
+      value: OBSEA_Biotop_with_texture
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -15.223216
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -14.097536
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6858661
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7267341
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.026092317
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.02764705
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -95.473
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -52.811005
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 52.684
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: 9156437091288354851, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+    - {fileID: 3216127498957388869, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: eceef5727333f40c18851e70935f94e4, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -980,3 +1052,4 @@ SceneRoots:
   - {fileID: 2132695475}
   - {fileID: 434657919}
   - {fileID: 4191164366519146856}
+  - {fileID: 5666585534124527726}
