@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b21055eacc291471ebd29e07cd51f881, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraOrbit
-  target: {fileID: 0}
+  target: {fileID: 473136669}
   rotationSpeed: 5
   distance: 60
   height: 1
@@ -590,6 +590,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &473136669 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5067450435633546390, guid: eceef5727333f40c18851e70935f94e4, type: 3}
+  m_PrefabInstance: {fileID: 5666585534124527726}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &560575055
 GameObject:
   m_ObjectHideFlags: 0
