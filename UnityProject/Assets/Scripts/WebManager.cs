@@ -7,51 +7,87 @@ public class WebManager : MonoBehaviour
     public EcologyBrain ecologyBrain;
     public SunController sunController;
 
+    private void Awake()
+    {
+        // Find all instances of WebManager
+        WebManager[] managers = Object.FindObjectsByType<WebManager>(FindObjectsInactive.Include);
+
+        if (managers.Length > 1)
+        {
+            // If I am not the first one in the list, destroy myself
+            if (managers[0].gameObject != this.gameObject)
+            {
+                Debug.Log("Destroying duplicate Web_Manager.");
+                Destroy(this.gameObject);
+                return;
+            }
+        }
+        
+        // If I am the primary manager, persist across scenes
+        DontDestroyOnLoad(this.gameObject);
+        Debug.Log("Web_Manager initialized and marked DontDestroyOnLoad.");
+        
+        // Subscribe to scene loading to re-hook references in new scenes
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        // Always unsubscribe from events when destroyed to avoid memory leaks
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Using FindAnyObjectByType to comply with Unity 6 performance standards
+        if (ecologyBrain == null)
+        {
+            ecologyBrain = Object.FindAnyObjectByType<EcologyBrain>();
+        }
+        if (sunController == null)
+        {
+            sunController = Object.FindAnyObjectByType<SunController>();
+        }
+    }
+
     public void ChangeScene(string sceneName)
     {
-        Debug.Log("Web Trigger: Loading scene " + sceneName);
+        Debug.Log("Web Trigger: Loading scene -> " + sceneName);
         SceneManager.LoadScene(sceneName);
     }
 
     public void UpdateSimulationTime(string dateTimeString)
     {
-        Debug.Log("Web Trigger: Data received - " + dateTimeString);
+        Debug.Log("Web Trigger: Data received -> " + dateTimeString);
 
+        // 1. Update EcologyBrain using the continuous single string layout
+        if (ecologyBrain != null)
+        {
+            ecologyBrain.UpdateSimulationTime(dateTimeString);
+        }
+        else
+        {
+            // Using FindAnyObjectByType to safely fetch the reference if missing
+            ecologyBrain = Object.FindAnyObjectByType<EcologyBrain>();
+            if (ecologyBrain != null) ecologyBrain.UpdateSimulationTime(dateTimeString);
+        }
+
+        // 2. Process split strings for SunController which still requires individual tokens
         string[] parts = dateTimeString.Split(' ');
         if (parts.Length < 2) return;
 
         string datePart = parts[0]; 
         string timePart = parts[1]; 
 
-        if (ecologyBrain != null)
-        {
-            ecologyBrain.UpdateFromWeb(datePart, timePart);
-        }
-
         if (sunController != null)
         {
-            sunController.UpdateFromWeb(datePart, timePart);
+            sunController.UpdateSimulationTime(datePart, timePart);
         }
-    }
-
-private void Awake()
-{
-    // Finn alle instanser av WebManager
-    WebManager[] managers = Object.FindObjectsByType<WebManager>(FindObjectsInactive.Include);
-
-    if (managers.Length > 1)
-    {
-        // Hvis jeg ikke er den første i listen, slett meg
-        if (managers[0].gameObject != this.gameObject)
+        else
         {
-            Debug.Log("Sletter duplikat av Web_Manager.");
-            Destroy(this.gameObject);
-            return;
+            // Using FindAnyObjectByType to safely fetch the reference if missing
+            sunController = Object.FindAnyObjectByType<SunController>();
+            if (sunController != null) sunController.UpdateSimulationTime(datePart, timePart);
         }
     }
-    
-    // Hvis jeg er den eneste (eller den første), bli med til neste scene
-    DontDestroyOnLoad(this.gameObject);
-    Debug.Log("Web_Manager har overlevd Awake og er klar!");
 }
-} 

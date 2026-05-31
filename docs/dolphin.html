@@ -75,8 +75,8 @@
         <div class="sidebar">
             <div class="control-group">
                 <h3>ENVIRONMENT</h3>
-                <button onclick="sendToUnity('ChangeScene', 'Plain')">Plain ocean</button>
-                <button onclick="sendToUnity('ChangeScene', 'AR')">Biotop</button>
+                <button onclick="returnToMainWithScene('Plain')">Plain ocean</button>
+                <button onclick="returnToMainWithScene('AR')">Biotop</button>
                 <button onclick="sendToUnity('ChangeScene', 'Stage1')">Dead dolphin</button>
             </div>
 
@@ -139,6 +139,59 @@
                 unityInstance.SendMessage('Web_Manager', methodName, value);
             }
         }
+        function returnToMainWithScene(sceneName) {
+    // Sender brukeren tilbake til hovedsiden, og forteller hvilken scene den skal åpne
+    window.location.href = "index.html?scene=" + sceneName;
+}
+
+// Global variabel for å holde styr på hvilken scene vi er i (standard er Plain)
+var currentScene = "Plain";
+
+// Oppdaterer scenestatus når du klikker på knapper
+const originalSendToUnity = sendToUnity;
+sendToUnity = function(methodName, value) {
+    originalSendToUnity(methodName, value);
+    if (methodName === 'ChangeScene') {
+        currentScene = value;
+    }
+};
+
+// Denne funksjonen blir kalt automatisk fra Unity hvert halve sekund
+function ReceiveEcologyData(jsonString) {
+    const data = JSON.parse(jsonString);
+    const infoBox = document.getElementById('infoText');
+    
+    let text = `<b>SIMULATION STATUS</b><br><br>`;
+    
+    // 1. Sjekk tid på døgnet (Natt-logikk)
+    if (data.hour < 6 || data.hour > 21) {
+        text += "⚠️ <i>Note: This is a purely mathematical model. We do not have reliable live data during nighttime. Since Chromis are known to sleep hidden in the substrate at night, the simulation assumes very low activity.</i><br><br>";
+    }
+    
+    // 2. Sjekk tid på året
+    if (data.day > 150 && data.day < 240) {
+        text += "☀️ Season: Summer. Warmer water temperatures usually correlate with peak fish dynamics at OBSEA.<br><br>";
+    } else if (data.day > 330 || data.day < 60) {
+        text += "❄️ Season: Winter. Reduced solar radiation and lower temperatures alter the baseline population activity.<br><br>";
+    }
+
+    // 3. Sjekk relasjon mellom artene (Dentex vs Chromis)
+    text += `<b>Species count (Scale 0-10):</b><br>`;
+    text += `🔹 Chromis: ${data.chromis}<br>`;
+    text += `🔸 Dentex: ${data.dentex}<br><br>`;
+
+    if (data.dentex >= 7 && data.chromis <= 3) {
+        text += "🔗 <b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller schooling fish.";
+    } else if (data.chromis >= 8 && data.dentex <= 3) {
+        text += "🔗 <b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence from larger trophic levels like Dentex.";
+    } else {
+        text += "The relationship between Chromis and Dentex is currently tracking stable baseline conditions.";
+    }
+
+    // Oppdaterer HTML-boksen i sanntid!
+    infoBox.innerHTML = text;
+}
+
     </script>
 </body>
 </html>

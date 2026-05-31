@@ -21,9 +21,9 @@ public class SunController : MonoBehaviour
     }
 
     // Denne metoden kalles fra WebManager.cs
-    public void UpdateFromWeb(string dateString, string timeString)
+    public void UpdateSimulationTime(string dateString, string timeString)
     {
-        Debug.Log("SUN CONTROLLER MOTTAR DATA NÅ!");
+        Debug.Log("SUN CONTROLLER IS RECEIVING DATA");
         
         useSystemTime = false;
         try {
