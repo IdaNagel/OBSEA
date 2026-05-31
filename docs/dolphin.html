@@ -161,31 +161,23 @@ function ReceiveEcologyData(jsonString) {
     const data = JSON.parse(jsonString);
     const infoBox = document.getElementById('infoText');
     
-    let text = `<b>SIMULATION STATUS</b><br><br>`;
-    
-    // 1. Sjekk tid på døgnet (Natt-logikk)
-    if (data.hour < 6 || data.hour > 21) {
-        text += "⚠️ <i>Note: This is a purely mathematical model. We do not have reliable live data during nighttime. Since Chromis are known to sleep hidden in the substrate at night, the simulation assumes very low activity.</i><br><br>";
-    }
-    
-    // 2. Sjekk tid på året
-    if (data.day > 150 && data.day < 240) {
-        text += "☀️ Season: Summer. Warmer water temperatures usually correlate with peak fish dynamics at OBSEA.<br><br>";
-    } else if (data.day > 330 || data.day < 60) {
-        text += "❄️ Season: Winter. Reduced solar radiation and lower temperatures alter the baseline population activity.<br><br>";
-    }
+    let text = `<b>Dead dolphin. There are no prey fish like Chromis 
+        present when there is food for the predator fish, that would be very dangerous for them. 
+        Chromis does not eat other fish, but is an easy prey for a larger fish like the Dentex</b><br><br>`;
 
-    // 3. Sjekk relasjon mellom artene (Dentex vs Chromis)
-    text += `<b>Species count (Scale 0-10):</b><br>`;
-    text += `🔹 Chromis: ${data.chromis}<br>`;
-    text += `🔸 Dentex: ${data.dentex}<br><br>`;
-
-    if (data.dentex >= 7 && data.chromis <= 3) {
-        text += "🔗 <b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller schooling fish.";
-    } else if (data.chromis >= 8 && data.dentex <= 3) {
-        text += "🔗 <b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence from larger trophic levels like Dentex.";
-    } else {
-        text += "The relationship between Chromis and Dentex is currently tracking stable baseline conditions.";
+// --- DOLPHIN SCENE TEXTS ---
+    // We use currentScene (global variable) and === for strict comparison
+    if (currentScene === 'Stage1') {
+        text += "Here you can see a fully dead Dolphin before the predator fish have started to eat from it.";
+    } 
+    else if (currentScene === 'Stage2') {
+        text += "As more fish eat from the dolphin, the bones will become visible.";
+    } 
+    else if (currentScene === 'Stage3') {
+        text += "Predator fish like the Dentex will eat the meat from the dolphin.";
+    } 
+    else if (currentScene === 'Stage4') {
+        text += "At the end, there is only the skeleton left and the fish do not care about it anymore.";
     }
 
     // Oppdaterer HTML-boksen i sanntid!

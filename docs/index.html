@@ -124,6 +124,20 @@
         var unityInstance = null;
         var currentScene = "Plain";
 
+        // 1. DEFINE THE FUNCTION IMMEDIATELY
+        // This ensures the buttons will NEVER crash with "not defined" even if clicked early
+        function sendToUnity(methodName, value) {
+            if (unityInstance) {
+                unityInstance.SendMessage('Web_Manager', methodName, value);
+                if (methodName === 'ChangeScene') {
+                    currentScene = value;
+                }
+            } else {
+                console.warn("Unity is still loading... Please wait a moment before clicking.");
+            }
+        }
+
+        // 2. INITIALIZE UNITY
         createUnityInstance(document.querySelector("#unity-canvas"), {
             dataUrl: "Build/docs.data",
             frameworkUrl: "Build/docs.framework.js",
@@ -149,16 +163,6 @@
             console.error("Unity failed to load:", err);
         });
 
-        // Combined function to send methods and locally track active environments
-        function sendToUnity(methodName, value) {
-            if (unityInstance) {
-                unityInstance.SendMessage('Web_Manager', methodName, value);
-                if (methodName === 'ChangeScene') {
-                    currentScene = value;
-                }
-            }
-        }
-
         function goToDolphinPage() {
             window.location.href = "dolphin.html?scene=Stage1";
         }
@@ -169,7 +173,6 @@
             
             if(date && time) {
                 console.log("Manual Sync: " + date + " " + time);
-                // Unified single string passed straight to EcologyBrain
                 sendToUnity('UpdateSimulationTime', date + " " + time);
             } else {
                 alert("Please select both a date and a time before updating!");
@@ -177,34 +180,33 @@
         }
 
         // --- REAL-TIME ECO-SYSTEM DATA INTERPRETER ---
-        // Fired automatically from the updated EcologyBrain.cs script
         function ReceiveEcologyData(jsonString) {
             const data = JSON.parse(jsonString);
             const infoBox = document.getElementById('infoText');
             
-            let text = `<b>SIMULATION STATUS</b><br><br>`;
+            let text = `<b>Information about the simulation. Feel free to change date or time to see the amount of fish present change</b><br><br>`;
             
-            // 1. Check time constraints (Nighttime parameters)
+            // 1. Time of Day Logic (Nighttime parameters)
             if (data.hour < 6 || data.hour > 21) {
-                text += "⚠️ <i>Note: This is a purely mathematical model. We do not have reliable live data during nighttime. Since Chromis are known to sleep hidden in the substrate at night, the simulation assumes very low activity.</i><br><br>";
+                text += "Night time: This is a purely mathematical model. We do not have reliable live data during nighttime. Since Chromis are known to sleep hidden in the substrate at night, the simulation assumes very low activity.</i><br><br>";
             }
             
-            // 2. Check seasonal indicators
+            // 2. Season Logic
             if (data.day > 150 && data.day < 240) {
-                text += "☀️ Season: Summer. Warmer water temperatures usually correlate with peak fish dynamics at OBSEA.<br><br>";
+                text += "Summer: Warmer water temperatures usually correlate with peak fish dynamics at OBSEA.<br><br>";
             } else if (data.day > 330 || data.day < 60) {
-                text += "❄️ Season: Winter. Reduced solar radiation and lower temperatures alter the baseline population activity.<br><br>";
+                text += "Winter: Reduced solar radiation and lower temperatures alter the baseline population activity.<br><br>";
             }
 
-            // 3. Evaluate multi-species population dependencies
+            // 3. Species Relations
             text += `<b>Species count (Scale 0-10):</b><br>`;
-            text += `🔹 Chromis: ${data.chromis}<br>`;
-            text += `🔸 Dentex: ${data.dentex}<br><br>`;
+            text += `Chromis: ${data.chromis}<br>`;
+            text += `Dentex: ${data.dentex}<br><br>`;
 
             if (data.dentex >= 7 && data.chromis <= 3) {
-                text += "🔗 <b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller schooling fish.";
+                text += "<b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller schooling fish.";
             } else if (data.chromis >= 8 && data.dentex <= 3) {
-                text += "🔗 <b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence from larger trophic levels like Dentex.";
+                text += "<b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence from larger trophic levels like Dentex.";
             } else {
                 text += "The relationship between Chromis and Dentex is currently tracking stable baseline conditions.";
             }

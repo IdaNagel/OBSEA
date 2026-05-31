@@ -1,45 +1,218 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
+<html lang="en">
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | My project</title>
-  </head>
-  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=960 height=600 tabindex="-1" style="width: 960px; height: 600px; background: #231F20"></canvas>
-    <script src="Build/Obsea website.loader.js"></script>
+    <title>OBSEA Underwater Simulator</title>
+
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #fdfaf1; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            color: #1a4a73;
+        }
+
+        header { text-align: center; padding: 20px; width: 100%; }
+        header h1 { font-size: 70px; margin: 0; color: #1a4a73; font-weight: bold; }
+        header p { font-weight: bold; margin: 0; text-transform: uppercase; font-size: 14px; }
+
+        .main-layout { 
+            display: flex; 
+            width: 95vw; 
+            max-width: 1400px; 
+            gap: 15px; 
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .sidebar { 
+            background-color: #7ba8cc; 
+            border-radius: 15px; 
+            padding: 20px; 
+            color: white; 
+            width: 250px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h3 { border-bottom: 2px solid white; padding-bottom: 5px; margin-top: 0; font-size: 18px; }
+
+        #unity-container { 
+            flex-grow: 1; 
+            background: #231F20; 
+            border: 10px solid #6b46c1; 
+            border-radius: 5px;
+            aspect-ratio: 16/9;
+        }
+
+        canvas { width: 100%; height: 100%; display: block; }
+
+        .control-group { margin-bottom: 20px; }
+        
+        button { 
+            width: 100%; padding: 10px; margin: 5px 0; 
+            border-radius: 20px; border: none; cursor: pointer; 
+            font-weight: bold; color: #1a4a73; background: white;
+        }
+        button:hover { background: #e0e0e0; }
+
+        .btn-update {
+            background-color: #6b46c1 !important;
+            color: white !important;
+            margin-top: 15px !important;
+        }
+
+        input { 
+            width: 90%; padding: 8px; border-radius: 5px; 
+            border: none; margin-top: 5px; font-family: inherit; 
+        }
+
+        .info-box { 
+            background: white; color: #7ba8cc; padding: 15px; 
+            border-radius: 10px; min-height: 200px; font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <p>YOUR OWN UNDERWATER WORLD - STRAIGHT FROM VILANOVA</p>
+        <h1>OBSEA</h1>
+    </header>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="control-group">
+                <h3>ENVIRONMENT</h3>
+                <button onclick="sendToUnity('ChangeScene', 'Plain')">Plain ocean</button>
+                <button onclick="sendToUnity('ChangeScene', 'AR')">Biotop</button>
+                <button onclick="goToDolphinPage()">Dead dolphin</button>
+            </div>
+
+            <div class="control-group">
+                <h3>DATE & TIME</h3>
+                <input type="date" id="dateInput">
+                <input type="time" id="timeInput">
+                <button class="btn-update" onclick="syncDateTime()">
+                    UPDATE SIMULATION
+                </button>
+            </div>
+        </div>
+
+        <div id="unity-container">
+            <canvas id="unity-canvas" tabindex="-1"></canvas>
+        </div>
+
+        <div class="sidebar">
+            <h3>INFORMATION</h3>
+            <div class="info-box" id="infoText">
+                Select an environment to start. 
+                <br><br>
+                Use the date and time pickers to change the ecological conditions and lighting.
+            </div>
+        </div>
+    </div>
+
+    <script src="Build/docs.loader.js"></script>
+    
     <script>
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+        var unityInstance = null;
+        var currentScene = "Plain";
 
-        var canvas = document.querySelector("#unity-canvas");
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.position = "fixed";
+        // 1. DEFINE THE FUNCTION IMMEDIATELY
+        // This ensures the buttons will NEVER crash with "not defined" even if clicked early
+        function sendToUnity(methodName, value) {
+            if (unityInstance) {
+                unityInstance.SendMessage('Web_Manager', methodName, value);
+                if (methodName === 'ChangeScene') {
+                    currentScene = value;
+                }
+            } else {
+                console.warn("Unity is still loading... Please wait a moment before clicking.");
+            }
+        }
 
-        document.body.style.textAlign = "left";
+        // 2. INITIALIZE UNITY
+        createUnityInstance(document.querySelector("#unity-canvas"), {
+            dataUrl: "Build/docs.data",
+            frameworkUrl: "Build/docs.framework.js",
+            codeUrl: "Build/docs.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "Obsea Simulator",
+            productVersion: "0.1.0",
+        }).then((instance) => {
+            unityInstance = instance;
+            console.log("Unity loaded successfully.");
 
-      }
+            // --- REDIRECT DETECTION FROM DOLPHIN PAGE ---
+            const urlParams = new URLSearchParams(window.location.search);
+            const startScene = urlParams.get('scene');
+            if (startScene) {
+                setTimeout(() => {
+                    sendToUnity('ChangeScene', startScene);
+                }, 1000);
+            }
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
-        arguments: [],
-        dataUrl: "Build/Obsea website.data.br",
-        frameworkUrl: "Build/Obsea website.framework.js.br",
-        codeUrl: "Build/Obsea website.wasm.br",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "My project",
-        productVersion: "0.1.0",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
-      }).then((unityInstance) => {
-      }).catch((message) => {
-        alert(message);
-      });
+        }).catch((err) => {
+            console.error("Unity failed to load:", err);
+        });
+
+        function goToDolphinPage() {
+            window.location.href = "dolphin.html?scene=Stage1";
+        }
+
+        function syncDateTime() {
+            const date = document.getElementById('dateInput').value;
+            const time = document.getElementById('timeInput').value;
+            
+            if(date && time) {
+                console.log("Manual Sync: " + date + " " + time);
+                sendToUnity('UpdateSimulationTime', date + " " + time);
+            } else {
+                alert("Please select both a date and a time before updating!");
+            }
+        }
+
+        // --- REAL-TIME ECO-SYSTEM DATA INTERPRETER ---
+        function ReceiveEcologyData(jsonString) {
+            const data = JSON.parse(jsonString);
+            const infoBox = document.getElementById('infoText');
+            
+            let text = `<b>Information about the simulation. Feel free to change date or time to see the amount of fish present change</b><br><br>`;
+            
+            // 1. Time of Day Logic (Nighttime parameters)
+            if (data.hour < 6 || data.hour > 21) {
+                text += "Night time: This is a purely mathematical model. We do not have reliable live data during nighttime. Since Chromis are known to sleep hidden in the substrate at night, the simulation assumes very low activity.</i><br><br>";
+            }
+            
+            // 2. Season Logic
+            if (data.day > 150 && data.day < 240) {
+                text += "Summer: Warmer water temperatures usually correlate with peak fish dynamics at OBSEA.<br><br>";
+            } else if (data.day > 330 || data.day < 60) {
+                text += "Winter: Reduced solar radiation and lower temperatures alter the baseline population activity.<br><br>";
+            }
+
+            // 3. Species Relations
+            text += `<b>Species count (Scale 0-10):</b><br>`;
+            text += `Chromis: ${data.chromis}<br>`;
+            text += `Dentex: ${data.dentex}<br><br>`;
+
+            if (data.dentex >= 7 && data.chromis <= 3) {
+                text += "<b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller schooling fish.";
+            } else if (data.chromis >= 8 && data.dentex <= 3) {
+                text += "<b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence from larger trophic levels like Dentex.";
+            } else {
+                text += "The relationship between Chromis and Dentex is currently tracking stable baseline conditions.";
+            }
+
+            infoBox.innerHTML = text;
+        }
     </script>
-  </body>
+</body>
 </html>
