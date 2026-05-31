@@ -1,11 +1,11 @@
-docs/index.html
-@@ -1,162 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>OBSEA Underwater Simulator</title>
+
     <style>
         body { 
             font-family: 'Segoe UI', Arial, sans-serif; 
@@ -74,6 +74,7 @@ docs/index.html
         .info-box { 
             background: white; color: #7ba8cc; padding: 15px; 
             border-radius: 10px; min-height: 200px; font-size: 14px;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -115,19 +116,13 @@ docs/index.html
                 Use the date and time pickers to change the ecological conditions and lighting.
             </div>
         </div>
-
-
-
-
-
-
-
     </div>
 
     <script src="Build/docs.loader.js"></script>
     
     <script>
         var unityInstance = null;
+        var currentScene = "Plain";
 
         createUnityInstance(document.querySelector("#unity-canvas"), {
             dataUrl: "Build/docs.data",
@@ -140,23 +135,82 @@ docs/index.html
         }).then((instance) => {
             unityInstance = instance;
             console.log("Unity loaded successfully.");
+
+            // --- REDIRECT DETECTION FROM DOLPHIN PAGE ---
+            const urlParams = new URLSearchParams(window.location.search);
+            const startScene = urlParams.get('scene');
+            if (startScene) {
+                setTimeout(() => {
+                    sendToUnity('ChangeScene', startScene);
+                }, 1000);
+            }
+
         }).catch((err) => {
             console.error("Unity failed to load:", err);
         });
 
+        // Combined function to send methods and locally track active environments
         function sendToUnity(methodName, value) {
             if (unityInstance) {
                 unityInstance.SendMessage('Web_Manager', methodName, value);
+                if (methodName === 'ChangeScene') {
+                    currentScene = value;
+                }
             }
         }
 
         function goToDolphinPage() {
-            // Reposisjonert hit ned i scriptet, og sender brukeren direkte til Stage 1
             window.location.href = "dolphin.html?scene=Stage1";
-
-
-
-
-
-
         }
+
+        function syncDateTime() {
+            const date = document.getElementById('dateInput').value;
+            const time = document.getElementById('timeInput').value;
+            
+            if(date && time) {
+                console.log("Manual Sync: " + date + " " + time);
+                // Unified single string passed straight to EcologyBrain
+                sendToUnity('UpdateSimulationTime', date + " " + time);
+            } else {
+                alert("Please select both a date and a time before updating!");
+            }
+        }
+
+        // --- REAL-TIME ECO-SYSTEM DATA INTERPRETER ---
+        // Fired automatically from the updated EcologyBrain.cs script
+        function ReceiveEcologyData(jsonString) {
+            const data = JSON.parse(jsonString);
+            const infoBox = document.getElementById('infoText');
+            
+            let text = `<b>SIMULATION STATUS</b><br><br>`;
+            
+            // 1. Check time constraints (Nighttime parameters)
+            if (data.hour < 6 || data.hour > 21) {
+                text += "⚠️ <i>Note: This is a purely mathematical model. We do not have reliable live data during nighttime. Since Chromis are known to sleep hidden in the substrate at night, the simulation assumes very low activity.</i><br><br>";
+            }
+            
+            // 2. Check seasonal indicators
+            if (data.day > 150 && data.day < 240) {
+                text += "☀️ Season: Summer. Warmer water temperatures usually correlate with peak fish dynamics at OBSEA.<br><br>";
+            } else if (data.day > 330 || data.day < 60) {
+                text += "❄️ Season: Winter. Reduced solar radiation and lower temperatures alter the baseline population activity.<br><br>";
+            }
+
+            // 3. Evaluate multi-species population dependencies
+            text += `<b>Species count (Scale 0-10):</b><br>`;
+            text += `🔹 Chromis: ${data.chromis}<br>`;
+            text += `🔸 Dentex: ${data.dentex}<br><br>`;
+
+            if (data.dentex >= 7 && data.chromis <= 3) {
+                text += "🔗 <b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller schooling fish.";
+            } else if (data.chromis >= 8 && data.dentex <= 3) {
+                text += "🔗 <b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence from larger trophic levels like Dentex.";
+            } else {
+                text += "The relationship between Chromis and Dentex is currently tracking stable baseline conditions.";
+            }
+
+            infoBox.innerHTML = text;
+        }
+    </script>
+</body>
+</html>
