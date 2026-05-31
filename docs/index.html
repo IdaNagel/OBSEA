@@ -1,3 +1,5 @@
+docs/index.html
+@@ -1,162 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,6 +115,13 @@
                 Use the date and time pickers to change the ecological conditions and lighting.
             </div>
         </div>
+
+
+
+
+
+
+
     </div>
 
     <script src="Build/docs.loader.js"></script>
@@ -144,19 +153,10 @@
         function goToDolphinPage() {
             // Reposisjonert hit ned i scriptet, og sender brukeren direkte til Stage 1
             window.location.href = "dolphin.html?scene=Stage1";
-        }
 
-        function syncDateTime() {
-            const date = document.getElementById('dateInput').value;
-            const time = document.getElementById('timeInput').value;
-            
-            if(date && time) {
-                console.log("Manual Sync: " + date + " " + time);
-                sendToUnity('UpdateSimulationTime', date + " " + time);
-            } else {
-                alert("Please select both a date and a time before updating!");
-            }
+
+
+
+
+
         }
-    </script>
-</body>
-</html>
