@@ -42,7 +42,7 @@
         #unity-container { 
             flex-grow: 1; 
             background: #231F20; 
-            border: 10px solid #6b46c1; 
+            border: 5px solid #6b46c1; 
             border-radius: 5px;
             aspect-ratio: 16/9;
         }
@@ -59,8 +59,8 @@
         button:hover { background: #e0e0e0; }
 
         .info-box { 
-            background: white; color: #7ba8cc; padding: 15px; 
-            border-radius: 10px; min-height: 200px; font-size: 14px;
+            background: white; color: #7ba8cc; padding: 10px; 
+            border-radius: 5px; min-height: 200px; font-size: 14px;
         }
     </style>
 </head>
@@ -158,15 +158,24 @@ sendToUnity = function(methodName, value) {
 
 // Denne funksjonen blir kalt automatisk fra Unity hvert halve sekund
 function ReceiveEcologyData(jsonString) {
-    const data = JSON.parse(jsonString);
+    // 1. Vi bruker try/catch så scriptet ikke krasjer om JSON-en er tom eller feil
+    let data = {};
+    try {
+        if (jsonString) {
+            data = JSON.parse(jsonString);
+        }
+    } catch (e) {
+        console.error("Kunne ikke lese JSON fra Unity:", e);
+    }
+
     const infoBox = document.getElementById('infoText');
     
+    // Den faste, fete teksten øverst
     let text = `<b>Dead dolphin. There are no prey fish like Chromis 
         present when there is food for the predator fish, that would be very dangerous for them. 
         Chromis does not eat other fish, but is an easy prey for a larger fish like the Dentex</b><br><br>`;
 
-// --- DOLPHIN SCENE TEXTS ---
-    // We use currentScene (global variable) and === for strict comparison
+    // 2. Sjekk scenen og legg til den lille teksten under
     if (currentScene === 'Stage1') {
         text += "Here you can see a fully dead Dolphin before the predator fish have started to eat from it.";
     } 
@@ -178,10 +187,15 @@ function ReceiveEcologyData(jsonString) {
     } 
     else if (currentScene === 'Stage4') {
         text += "At the end, there is only the skeleton left and the fish do not care about it anymore.";
+    } else {
+        // Valgfri standardtekst hvis man er i Plain/Biotop scenene
+        text += "Select a dolphin stage to see the decomposition process.";
     }
 
-    // Oppdaterer HTML-boksen i sanntid!
-    infoBox.innerHTML = text;
+    // 3. Oppdater boksen
+    if (infoBox) {
+        infoBox.innerHTML = text;
+    }
 }
 
     </script>

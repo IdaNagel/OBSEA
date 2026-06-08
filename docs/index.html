@@ -44,7 +44,7 @@
         #unity-container { 
             flex-grow: 1; 
             background: #231F20; 
-            border: 10px solid #6b46c1; 
+            border: 5px solid #6b46c1; 
             border-radius: 5px;
             aspect-ratio: 16/9;
         }
@@ -72,8 +72,8 @@
         }
 
         .info-box { 
-            background: white; color: #7ba8cc; padding: 15px; 
-            border-radius: 10px; min-height: 200px; font-size: 14px;
+            background: white; color: #7ba8cc; padding: 10px; 
+            border-radius: 5px; min-height: 200px; font-size: 14px;
             line-height: 1.5;
         }
     </style>
@@ -184,29 +184,29 @@
             const data = JSON.parse(jsonString);
             const infoBox = document.getElementById('infoText');
             
-            let text = `<b>Information about the simulation. Feel free to change date or time to see the amount of fish present change</b><br><br>`;
+            let text = `<b>Information about the simulation:</b><br><br>`;
             
             // 1. Time of Day Logic (Nighttime parameters)
             if (data.hour < 6 || data.hour > 21) {
-                text += "Night time: This is a purely mathematical model. We do not have reliable live data during nighttime. Since Chromis are known to sleep hidden in the substrate at night, the simulation assumes very low activity.</i><br><br>";
+                text += "Night time: This is a purely mathematical model. Both fish need light to hunt for food. </i><br><br>";
             }
             
             // 2. Season Logic
             if (data.day > 150 && data.day < 240) {
-                text += "Summer: Warmer water temperatures usually correlate with peak fish dynamics at OBSEA.<br><br>";
+                text += "Summer: Warmer water temperatures usually correlate with peak fish dynamics at OBSEA. Dentex is known to seek shallower water during summer-time<br><br>";
             } else if (data.day > 330 || data.day < 60) {
-                text += "Winter: Reduced solar radiation and lower temperatures alter the baseline population activity.<br><br>";
+                text += "Winter: Reduced solar radiation and lower temperatures alter the baseline population activity. Chromis is known to hibernate<br><br>";
             }
 
             // 3. Species Relations
-            text += `<b>Species count (Scale 0-10):</b><br>`;
-            text += `Chromis: ${data.chromis}<br>`;
-            text += `Dentex: ${data.dentex}<br><br>`;
+            text += `<b>Species count in the scene:</b><br>`;
+            text += `Chromis: ${data.chromis*10}<br>`;
+            text += `Dentex: ${data.dentex*2}<br><br>`;
 
             if (data.dentex >= 7 && data.chromis <= 3) {
-                text += "<b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller schooling fish.";
+                text += "<b>Ecological Link:</b> High presence of Dentex concurrent with low Chromis counts suggests active predatory pressure, as Dentex frequently hunt smaller fish.";
             } else if (data.chromis >= 8 && data.dentex <= 3) {
-                text += "<b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence from larger trophic levels like Dentex.";
+                text += "<b>Ecological Link:</b> The high density of Chromis reflects a safe environment with minimal predator presence like Dentex.";
             } else {
                 text += "The relationship between Chromis and Dentex is currently tracking stable baseline conditions.";
             }

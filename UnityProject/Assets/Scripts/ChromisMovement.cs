@@ -10,7 +10,7 @@ public class ChromisMovement : MonoBehaviour
     [Header("Movement")]
     public float speed = 3.0f;       
     public float turnSpeed = 2.0f;
-    public float sensorDistance = 1.5f; // Hvor langt foran fisken ser
+    public float sensorDistance = 1.5f; // How far the fish can "see"
 
     private Vector3 targetPoint;
     private float changeTimer;

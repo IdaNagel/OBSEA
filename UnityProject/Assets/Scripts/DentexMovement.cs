@@ -3,9 +3,9 @@ using UnityEngine;
 public class DentexMovement : MonoBehaviour
 {
     [Header("Area Settings")]
-    public MeshRenderer groundPlane; // Dra havbunn-planet ditt hit
-    public float minHeight = 1.0f;   // Minimumshøyde over bunnen
-    public float maxHeight = 3.0f;   // Maksimumshøyde over bunnen
+    public MeshRenderer groundPlane; 
+    public float minHeight = 1.0f; 
+    public float maxHeight = 3.0f;   
 
     [Header("Movement")]
     public float speed = 2.0f;
